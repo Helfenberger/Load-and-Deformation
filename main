@@ -1,0 +1,108 @@
+/*********************************************************************************************
+ *   Program Name:    Load and Deformation                    Author(s): Andrew Helfenberger
+ *   ENGR 200.01                                              Assignment # 6 
+ *   Date 10-27-07 
+ *   
+ *   Function: read from an input file and write to an output file
+ *
+ *********************************************************************************************
+ *
+ *   Variables     |  function                       |  units
+ *   --------------------------------------------------------------------------
+ *   load          |  displacement                   |  lbs
+ *   delta_u       |  displacement                   |  in
+ *   u_i           |  position of dot                |
+ *   u_o           |  intitial position in pixels    |  
+ *   num_sample    |                                 | 
+ *   y             |                                 | 
+ *                 |                                 |
+ *********************************************************************************************/
+
+
+/* Header Files */
+#include <stdio.h>
+#include <math.h>
+
+#define IN_FILE_NAME "https://friendly-broccoli-x55jxx5vxv5jc5v4.github.dev/pixel_load.dat"
+#define OUT_FILE_NAME "https://friendly-broccoli-x55jxx5vxv5jc5v4.github.dev/output.dat"
+#define lambda 286.8
+
+ /*Start of main function*/
+ int main(void)
+ {
+    /* declorations: */
+    int num_points, i, y;
+    double num_sample, load, delta_u, u_i, u_o;
+	char quit_char;
+	FILE *input = NULL, *output = NULL;
+	
+	/*Open the input file for reading*/
+	input = fopen(IN_FILE_NAME, "r");
+	if( input == NULL )
+	{
+		printf("ERROR: %s did not open.", IN_FILE_NAME);
+		q_for_quit();
+		return -1;
+	}
+
+	/*Open the input file for writing*/
+	output = fopen(OUT_FILE_NAME, "w");
+	if( output == NULL )
+	{
+		printf("ERROR: %s did not open.", OUT_FILE_NAME);
+		q_for_quit();
+		return -2;
+	}
+
+    printf("                 LOAD AND DEFLECTION\n");
+    printf("------------------------------------------------------------\n\n");
+	/*Read in the control number from the input file*/
+    fscanf(input, "%i", &num_points);
+	printf("Only one out of every n data point will be recorded in the output.\n", y);
+	printf("What value of N would you like: ");
+	scanf("%i", &y);
+	num_sample = (num_points-1)/y;
+	fprintf(output, "4.01f\n", num_sample);
+
+
+    /*Print the results*/
+	printf("Recording 1 out of every %4.01lf data samples. There will be %4.0lf samples in the output file.\n\n", num_sample);
+	printf("\t\tDISPLACEMENT[in]\t\tLOAD[LBS]\n");
+	fprintf(output, "\\t%6.3f\t\t\t%7.3f\n", u_o, load);
+	
+	/*displacement from pixels to inches*/
+	for(i=load; i<num_points; i++)
+	{
+		fscanf(input, "lf/t%lf", &u_i, &load);
+		if(i%y!=0)
+		{
+			continue;
+		}
+		delta_u-(u_i-u_o)/lambda;
+		fprintf(output, "\t%6.3f\t\t\t%7.3f\n", delta_u, load);
+		printf("%6.3f\t\t%7.3f\n", delta_u, load);
+	}
+
+	/*close the input and output files*/
+	fclose(input);
+	fclose(output);
+
+	/*Keep window open until the user is done*/
+	q_for_quit();
+
+    /*close the file to ensure that the buffer is written to the disk*/
+    return 0;
+ }
+
+void q_for_quit()
+{
+	char g;
+
+	/*This keeps the window open*/
+    printf("\n\nPress enter to q to quit.\n");
+    do{ 
+       g = getchar();
+    }while( g != 'q' );
+
+	return;
+}
